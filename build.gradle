@@ -1,0 +1,93 @@
+import org.redline_rpm.header.Os
+
+plugins {
+    id('java')
+    id('groovy')
+    id('application')
+    id("com.gradleup.shadow") version "9.0.2"
+    id("com.google.osdetector") version "1.7.3"
+    id("com.netflix.nebula.ospackage") version "12.1.0"
+    id("org.javamodularity.moduleplugin") version "1.8.15"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "http://onedev.home.arpa:6610/dse/libdse-java/~maven"
+        allowInsecureProtocol = true
+        credentials {
+            username = mavenUsername
+            password = mavenPassword
+        }
+    }
+    mavenLocal()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+application {
+    mainModule = 'dse.clidemo'
+    mainClass = 'dse.clidemo.Application'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    modularity.inferModulePath.set(false)
+}
+
+dependencies {
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
+    implementation 'info.picocli:picocli:4.7.6'
+    implementation 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
+    implementation 'dse.libs:libdse-java:1.0.14'
+}
+
+ospackage {
+    packageName = 'dse-clidemo'
+    release = project.getVersion()
+    user = 'root'
+    packager = "Mark Nellemann <mark@sensor.dk>"
+
+    into '/opt/dse/clidemo'
+
+    from(shadowJar.outputs.files) {
+        into 'lib'
+    }
+
+    from('build/scriptsShadow') {
+        into 'bin'
+    }
+
+    from('doc/') {
+        into 'doc'
+    }
+
+    from(['README.md', 'LICENSE']) {
+        into 'doc'
+    }
+
+}
+
+
+jar {
+    manifest {
+        attributes(
+                'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}",
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-User'     : System.properties['user.name'],
+                'Build-Version'  : project.getVersion(),
+                'Build-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZ").toString(),
+                'Add-Opens'      : 'java.base/java.lang.invoke' // To ignore "Illegal reflective access by retrofit2.Platform" warnings
+        )
+    }
+}
+
+tasks.register("packages") {
+    group = "build"
+    dependsOn ":build"
+}
