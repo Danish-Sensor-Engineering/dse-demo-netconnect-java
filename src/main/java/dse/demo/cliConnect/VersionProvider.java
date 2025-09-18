@@ -1,4 +1,4 @@
-package dse.clidemo;
+package dse.demo.cliConnect;
 
 import picocli.CommandLine;
 
