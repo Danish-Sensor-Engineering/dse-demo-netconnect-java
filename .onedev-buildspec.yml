@@ -13,10 +13,10 @@ jobs:
     force: false
     condition: SUCCESSFUL
     optional: false
-  triggers:
-  - !ScheduleTrigger
-    cronExpression: 0 0 0 * * ?
-    projects: dse/dse-demo-netconnect-java
+  jobDependencies:
+  - jobName: Deploy
+    requireSuccessful: true
+    artifacts: '**'
   retryCondition: never
   maxRetries: 3
   retryDelay: 30
