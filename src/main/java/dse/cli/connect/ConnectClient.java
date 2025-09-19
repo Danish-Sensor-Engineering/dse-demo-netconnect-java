@@ -35,8 +35,8 @@ public class ConnectClient implements Runnable {
     @Override
     public void run() {
         try {
-            readBuffer = new byte[2048]; // Large buffer to autosize down
-            output.write("start".getBytes());
+            readBuffer = new byte[2048];        // Large buffer to autosize down
+            output.write("start".getBytes());   // Send the 'start' control command
             output.write(System.lineSeparator().getBytes());
             output.flush();
             read();
@@ -55,9 +55,9 @@ public class ConnectClient implements Runnable {
 
     public void stop() throws IOException {
         keepRunning = false;
-        output.write("stop".getBytes());
+        output.write("stop".getBytes());        // Send the 'stop' control command to stop data
         output.write(System.lineSeparator().getBytes());
-        output.write("exit".getBytes());
+        output.write("exit".getBytes());        // Send the 'exit' control command to disconnect
         output.write(System.lineSeparator().getBytes());
         output.flush();
         try {

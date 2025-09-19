@@ -1,14 +1,18 @@
-# DSE Net Connect - Client Demo  
+# DSE Net Connect - Client Example  
 
 This repository serves as example of how to connect to DSE Net Connect and receive measurements over the network.
 
-- Connect to DSE Net Connect (default port 2730)
-- Send control commands to start, stop, etc.
-- In a loop, read the byte input-stream and parse
+The flow would typically be:
+
+- Open a TCP socket to DSE Net Connect (default port 2730) 
+- Send control commands to start, stop, etc. in plaintext
+- In a loop, read the byte input-stream, parse and use measurement result 
 - Send the 'exit' commands to disconnect 
 
 
 ## Network Datagram
+
+The data sent always consist of a header and some data of varied length.
 
 | HEADER   | DATA                               |
 |----------|------------------------------------| 
@@ -17,41 +21,44 @@ This repository serves as example of how to connect to DSE Net Connect and recei
 
 ### Header
 
-The network datagram always consists of 22 bytes header data 
+The header is always 22 bytes and tells us about the type of data (distance measurement, 2d profile sweep, or error) and other information.
 
-| Bytes | Java Type | Header Name | Description                                                                      |
-|-------|-----------|-------------|----------------------------------------------------------------------------------|
-| 2     | short     | ID          | Unique fingerprint for this kind of binary payload                               |
-| 2     | short     | VERSION     | Datagram version to accommodate for future changes                               |
-| 2     | short     | TYPE        | 1=Error, 11=Distance or Profile ( 21=400, 22=800, 24=1600 )                      |
-| 4     | int       | LENGTH      | Size of datagram including header of 22 bytes                                    |
-| 4     | int       | SEQUENCE    | Counter that wraps at MAX (for int) and starts over                              |
-| 8     | long      | TIMESTAMP   | Timestamp in milliseconds (Unix Epoch) when measurement was received from device |
+| Bytes | Java Type | Header Name | Description                                                          |
+|-------|-----------|-------------|----------------------------------------------------------------------|
+| 2     | short     | ID          | Unique fingerprint for this kind of binary payload                   |
+| 2     | short     | VERSION     | Datagram version to accommodate for future changes                   |
+| 2     | short     | TYPE        | 1=Error, 11=Distance or 21=Profile                                   |
+| 4     | int       | LENGTH      | Size of datagram including header of 22 bytes                        |
+| 4     | int       | SEQUENCE    | Counter that wraps at Integer.MAX and starts over          |
+| 8     | long      | TIMESTAMP   | Timestamp in milliseconds (Unix Epoch) when measurement was received |
 
 
 
 ### Data
 
-The header is followed by data depending of type.
+Following the 22 bytes header, we get 4 bytes or more data depending on the type.
 
-| Type (from header) | Description & Size                              |
-|--------------------|-------------------------------------------------| 
-| Error              | 4 Bytes error code                              |
-| Distance           | 4 Bytes distance                                |
-| Profile            | 16 Bytes (for X + Y) x Sweep (400, 800 or 1600) |
+| Type (from header)   | Description & Size                                           |
+|----------------------|--------------------------------------------------------------| 
+| 1 = Error            | 4 Bytes error code                                           |
+| 11 = Distance        | 4 Bytes distance                                             |
+| 21 = 2D Profile      | 16 Bytes (for X/Y) x scan of x points (determined by length) |
+| 22 = 2D Profile 400  | 16 Bytes (for X/Y) x scan of 400 points = 6400 bytes         |
+| 23 = 2D Profile 800  | 16 Bytes (for X/Y) x scan of 800 points = 12800 bytes        |
+| 24 = 2D Profile 1600 | 16 Bytes (for X/Y) x scan of 1600 points = 25600 bytes       |
 
 
 
  ## Control Commands
 
-The session dan be controlled with the following commands, which should be send in plaintext following a newline.
+The session can be controlled with the following commands, which should be sent in plaintext following a newline.
 
 | Command | Description                         |
 |---------|-------------------------------------| 
 | ping    | Should respond 'pong' as a test     |
 | start   | Start flow of measurement data      |
 | stop    | Stop flow of measurement data       |
-| ascii   | Send ASCII data (only measurements) |
+| ascii   | Send ASCII data (only measurement)  |
 | binary  | Send BINARY data (default)          |
 | exit    | Exit and disconnect                 |                           |
 | quit    | Exit and disconnect                 |
