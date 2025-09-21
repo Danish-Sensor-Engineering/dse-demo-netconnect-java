@@ -1,22 +1,25 @@
-version: 40
+version: 41
 imports:
-- projectPath: common/java/gradle-fatjar
-  revision: main
+  - projectPath: common/java/gradle-fatjar
+    revision: main
 jobs:
-- name: Push to Github
-  steps:
-  - !PushRepository
-    name: Github
-    remoteUrl: https://github.com/Danish-Sensor-Engineering/dse-demo-netconnect-java
-    userName: mnellemann
-    passwordSecret: GITHUB-TOKEN
-    force: false
-    condition: SUCCESSFUL
-    optional: false
-  jobDependencies:
-  - jobName: Build
-    requireSuccessful: true
-  retryCondition: never
-  maxRetries: 3
-  retryDelay: 30
-  timeout: 14400
+  - name: Push to Github
+    steps:
+      - type: PushRepository
+        name: Github
+        remoteUrl: https://github.com/Danish-Sensor-Engineering/dse-demo-netconnect-java
+        userName: mnellemann
+        passwordSecret: GITHUB-TOKEN
+        force: false
+        condition: SUCCESSFUL
+        optional: false
+    triggers:
+      - type: BranchUpdateTrigger
+        branches: main
+        projects: dse/dse-demo-netconnect-java
+    jobDependencies:
+      - jobName: Test
+        requireSuccessful: true
+    maxRetries: 3
+    retryDelay: 30
+    timeout: 14400
