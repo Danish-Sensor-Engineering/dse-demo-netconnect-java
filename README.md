@@ -1,18 +1,21 @@
 # DSE Net Connect - Client Example  
 
-This repository serves as example of how to connect to DSE Net Connect and receive measurements over the network.
+This repository serves as example of how to connect to _DSE Net Connect_ and receive measurements over the network.
 
-The flow would typically be:
+DSE Net Connect is an additional device that manages the basic serial communication and enables simple setup through a web interface. Multiple applications can connect through the network (TCP/IP) to access measurement results. Additionally, the Net Connect device functions as a power supply with voltage monitoring capabilities.
+
+The typical flow:
 
 - Open a TCP socket to DSE Net Connect (default port 2730) 
 - Send control commands to start, stop, etc. in plaintext
-- In a loop, read the byte input-stream, parse and use measurement result 
+- In a loop, read the byte input-stream and parse the data
+  - Use the measurement result in your business logic 
 - Send the 'exit' commands to disconnect 
 
 
 ## Network Datagram
 
-The data sent always consist of a header and some data of varied length.
+The data received always consist of a _header_ and some _data_ of varied length.
 
 | HEADER   | DATA                               |
 |----------|------------------------------------| 
