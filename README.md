@@ -77,3 +77,7 @@ If the datagram header is of type=1 (Error), the 4-bytes data (integer) can be u
 | 2    | A target is observed but outside the measuring range   |
 | 1    | A target is observed but outside the measuring range   |
 | 0    | A target is observed but outside the measuring range   |
+
+## Notes
+
+If you wish to implement the communication in other programming languages, we are ready to support you, within the limits of our knowledge of the programming language you use.
