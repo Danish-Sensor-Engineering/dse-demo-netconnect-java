@@ -1,4 +1,4 @@
-# DSE Net Connect - Client Example  
+# DSE Net Connect - Client Example
 
 This repository serves as example of how to connect to _DSE Net Connect_ and receive measurements over the network.
 
@@ -6,19 +6,19 @@ DSE Net Connect is an additional device that manages the basic serial communicat
 
 The typical flow:
 
-- Open a TCP socket to DSE Net Connect (default port 2730) 
+- Open a TCP socket to DSE Net Connect (default port 2730)
 - Send control commands to start, stop, etc. in plaintext
 - In a loop, read the byte input-stream and parse the data
-  - Use the measurement result in your business logic 
-- Send the 'exit' commands to disconnect 
+  - Use the measurement result in your business logic
+- Send the 'exit' commands to disconnect
 
 
-## Network Datagram
+## Network Payload
 
-The data received always consist of a _header_ and some _data_ of varied length.
+The network payload received always consist of a _header_ and some _data_ of varied length.
 
 | HEADER   | DATA                               |
-|----------|------------------------------------| 
+|----------|------------------------------------|
 | 22 bytes | 4 bytes or more, depending on type |
 
 
@@ -29,10 +29,10 @@ The header is always 22 bytes and tells us about the type of data (distance meas
 | Bytes | Java Type | Header Name | Description                                                          |
 |-------|-----------|-------------|----------------------------------------------------------------------|
 | 2     | short     | ID          | Unique fingerprint for this kind of binary payload                   |
-| 2     | short     | VERSION     | Datagram version to accommodate for future changes                   |
+| 2     | short     | VERSION     | Version to accommodate for future changes                            |
 | 2     | short     | TYPE        | 1=Error, 11=Distance or 21=Profile                                   |
-| 4     | int       | LENGTH      | Size of datagram including header of 22 bytes                        |
-| 4     | int       | SEQUENCE    | Counter that wraps at Integer.MAX and starts over          |
+| 4     | int       | LENGTH      | Size of payload including header of 22 bytes                         |
+| 4     | int       | SEQUENCE    | Counter that wraps at Integer.MAX and starts over                    |
 | 8     | long      | TIMESTAMP   | Timestamp in milliseconds (Unix Epoch) when measurement was received |
 
 
@@ -42,7 +42,7 @@ The header is always 22 bytes and tells us about the type of data (distance meas
 Following the 22 bytes header, we get 4 bytes or more data depending on the type.
 
 | Type (from header)   | Description & Size                                           |
-|----------------------|--------------------------------------------------------------| 
+|----------------------|--------------------------------------------------------------|
 | 1 = Error            | 4 Bytes error code                                           |
 | 11 = Distance        | 4 Bytes distance                                             |
 | 21 = 2D Profile      | 16 Bytes (for X/Y) x scan of x points (determined by length) |
@@ -57,7 +57,7 @@ Following the 22 bytes header, we get 4 bytes or more data depending on the type
 The session can be controlled with the following commands, which should be sent in plaintext following a newline.
 
 | Command | Description                         |
-|---------|-------------------------------------| 
+|---------|-------------------------------------|
 | ping    | Should respond 'pong' as a test     |
 | start   | Start flow of measurement data      |
 | stop    | Stop flow of measurement data       |
@@ -69,10 +69,10 @@ The session can be controlled with the following commands, which should be sent 
 
 ## Error Codes
 
-If the datagram header is of type=1 (Error), the 4-bytes data (integer) can be used to tell us about the error.
+If the header is of type=1 (Error), the 4-bytes data (integer) can be used to tell us about the error.
 
 | Code | Description                                            |
-|------|--------------------------------------------------------| 
+|------|--------------------------------------------------------|
 | 99   | An unknown error occurred                              |
 | 6    | Too little light returned or there is no target at all |
 | 5    | Too much light returned/blinding or false light        |

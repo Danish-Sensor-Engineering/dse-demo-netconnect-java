@@ -71,7 +71,7 @@ public class ConnectClient implements Runnable {
 
     private void parse(byte[] input) {
 
-        // Measurement Datagram
+        // Network Payload
         //
         // <---------------------- HEADER 22 bytes -------------------->     <----- DATA ----->
         //    _short   _short   _short    _int       _int      _long
@@ -81,7 +81,7 @@ public class ConnectClient implements Runnable {
         // - ID: Unique fingerprint for this kind of binary payload
         // - VERSION: To accommodate future changes
         // - TYPE: Error, Distance Sensor or Profile Scanner ( 400, 800, 1600 )
-        // - LENGTH: Size of datagram including header of 22 bytes
+        // - LENGTH: Size of payload including header of 22 bytes
         // - SEQUENCE: Counter that wraps at MAX and starts over
         // - TIMESTAMP: Time in milliseconds (Unix Epoch) when measurement was received from device
         // - DATA: Depends on TYPE
