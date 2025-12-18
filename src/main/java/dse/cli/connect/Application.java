@@ -15,7 +15,7 @@ import static java.lang.Thread.sleep;
 public class Application implements Callable<Integer> {
 
 
-    @CommandLine.Parameters(index = "0", defaultValue = "192.168.8.150") InetAddress host;
+    @CommandLine.Parameters(index = "0", defaultValue = "localhost") InetAddress host;
     @CommandLine.Parameters(index = "1", defaultValue = "2730") int port;
 
     @CommandLine.Parameters(hidden = true)  // "hidden": don't show this parameter in usage help message

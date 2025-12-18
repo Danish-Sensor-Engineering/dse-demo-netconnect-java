@@ -85,8 +85,11 @@ public class ConnectClient implements Runnable {
         // - SEQUENCE: Counter that wraps at MAX and starts over
         // - TIMESTAMP: Time in milliseconds (Unix Epoch) when measurement was received from device
         // - DATA: Depends on TYPE
-        //   - int (4-bytes) when ERROR and DISTANCE
-        //   - list (no. points in sweep) of 2 x double (8-bytes) for X & Y coordinates when PROFILE
+        //   - 4 bytes [int] when ERROR and DISTANCE
+        //   - 20 bytes x points in sweep when PROFILE
+        //      4 bytes [int] for polar distance +
+        //      8 bytes [double] for X coordinate
+        //      8 bytes [double] for Y coordinate
 
         if(input.length < 22) {
             System.err.printf("parse() - invalid size of payload: %d%n", input.length);
@@ -129,7 +132,8 @@ public class ConnectClient implements Runnable {
                 break;
             case 21, 22, 23, 24:    // Profile
                 int count = 0;
-                while(buffer.position() <= buffer.limit() - 16) {    // 2 x double == 16
+                while(buffer.position() <= buffer.limit() - 20) {    // 1 x 4 [int] + 2 x 8 [double] == 20
+                    int p = buffer.getInt();
                     double x = buffer.getDouble();
                     double y = buffer.getDouble();
                     count++;
